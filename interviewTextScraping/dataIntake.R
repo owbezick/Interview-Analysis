@@ -1,15 +1,16 @@
 library(tidyverse)
 library(pdftools)
 library(tidytext)
-#install.packages('tm')
+# install.packages('tm')
 library(tm)
-install.packages("qdapRegex")
+# install.packages("qdapRegex")
 library(qdapRegex)
 
 # Import Leader pdf file
-raw_lines <- pdf_text("Leader, Joyce E.toc.pdf") %>%
+raw_lines <- pdf_text("leader_interview.pdf") %>%
   read_lines()
 
+# Extract interview Lines
 raw_interview <- raw_lines[149:3429]
 
 # Append into single
