@@ -1,4 +1,5 @@
 library(tidyverse)
+library(dplyr)
 library(pdftools)
 library(tidytext)
 library(tm)
@@ -7,11 +8,13 @@ library(qdapRegex)
 library(rlist)
 library(tokenizers)
 library(stopwords)
+library(syuzhet)
 
-# Import Leader pdf file
+# Import Leader pdf file ----
 raw_lines <- pdf_text("leader_interview.pdf") %>%
   read_lines()
 
+# Text Preprocessing ----
 # Extract interview Lines
 raw_interview <- raw_lines[149:3429]
 
@@ -31,10 +34,9 @@ answers <- rm_between_multiple(interview_trimmed_white_space, left = 'LEADER:', 
 answers_source <- VectorSource(answers)
 answers_corpus <- VCorpus(answers_source)
 
-# BUGS: replace contraditions, remove stopwards
 # Clean Corpus Function
 clean_corpus <- function(corpus){
-  corpus <- tm_map(corpus, removeWords, c(stopwords("en")))
+  corpus <- tm_map(corpus, removeWords, c(stopwords("en"), "the", "but"))
   corpus <- tm_map(corpus, stripWhitespace)
   corpus <- tm_map(corpus, removePunctuation) 
   corpus <- tm_map(corpus, content_transformer(replace_contraction))
@@ -42,12 +44,8 @@ clean_corpus <- function(corpus){
   return(corpus)
 }
 
-# Clean Questions
+# Clean Answers
 clean_answers <- clean_corpus(answers_corpus)
-
-# Check differnce of first question
-clean_answers[[1]]$content
-clean_answers[[100]]$content
 
 # Create term-doc matrix
 answer_tdm <- TermDocumentMatrix(clean_answers)
@@ -55,13 +53,23 @@ answer_m <- as.matrix(answer_tdm)
 
 # Term frequency
 q_term_freq <- sort(rowSums(answer_m), decreasing = T)
-# Show top 10
+# Show top 100
 q_term_freq[1:100]
 
 # Key Words: Genocide, rwanda/n
-# Tokenization 
-# Questions
-question_tokens <- tokenize_words(questions, stopwords = stopwords::stopwords("en"))
-# Answers
-answer_tokens <- tokenize_words(answers, stopwords = stopwords::stopwords("en"))
+
+# Sentiment Analysis ----
+# Create dataframe
+answers_df <- data.frame(text=unlist(sapply(clean_answers, `[`, "content")), 
+                        stringsAsFactors=F)
+
+# Get lists of questions
+answers_ls <- answers_df %>%
+  select(text) %>%
+  pull()
+
+# Sentiment for each question
+answer_sentiment <- get_nrc_sentiment(answers_ls)
+# Add answer back into sentiment
+answer_sentiment$answer = answers_ls
 
