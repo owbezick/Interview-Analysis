@@ -116,7 +116,9 @@ key_words_df <-answer_sentiment %>%
   mutate(rwanda = ifelse(str_detect(answer, "rwanda"), 1, 0)) %>%
   mutate(genocide = ifelse(str_detect(answer, "genocide"), 1, 0)) %>%
   mutate(rwandan = ifelse(str_detect(answer, "rwandan"), 1, 0)) %>%
-  filter(rwanda > 0 | genocide >0 | rwandan >0) %>%
+  filter(rwanda > 0 | genocide >0 | rwandan >0) 
+
+key_words_chart_df <- key_words_df %>%
   summarise(anger = sum(anger)
             , disgust = sum(disgust)
             , fear = sum(fear)
@@ -129,4 +131,16 @@ key_words_df <-answer_sentiment %>%
             , positive = sum(positive)) %>%
   mutate(chart = "")
 
-key_word_sentiment_bar <- sentimentBar(key_words_df, "Answers Mentioning Rwanda & Genocide")
+key_word_sentiment_bar <- sentimentBar(key_words_chart_df, "Answers Mentioning Rwanda & Genocide")
+
+# Find answers with highest scores
+answer_sentiment <- answer_sentiment %>%
+  mutate(overall_sentiment = anger + anticipation + disgust + fear + joy + sadness + surprise + trust + negative + positive)
+
+key_words_df <- key_words_df %>%
+  mutate(overall_sentiment = anger + anticipation + disgust + fear + joy + sadness + surprise + trust + negative + positive)
+
+all_answers_sorted <- answer_sentiment[order(answer_sentiment$overall_sentiment, decreasing = T),] %>% head(10)
+
+key_words_sorted <- key_words_df[order(key_words_df$overall_sentiment, decreasing = T),] %>% head(10)
+
