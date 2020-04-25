@@ -1,15 +1,3 @@
-library(tidyverse)
-library(dplyr)
-library(pdftools)
-library(tidytext)
-library(tm)
-library(qdap)
-library(qdapRegex)
-library(rlist)
-library(tokenizers)
-library(stopwords)
-library(syuzhet)
-library(echarts4r)
 # Import Leader pdf file ----
 raw_lines <- pdf_text("leader_interview.pdf") %>%
   read_lines()
@@ -47,35 +35,17 @@ clean_corpus <- function(corpus){
 # Clean Answers
 clean_answers <- clean_corpus(answers_corpus)
 
-# Create term-doc matrix
-answer_tdm <- TermDocumentMatrix(clean_answers)
-answer_m <- as.matrix(answer_tdm)
-
-# Term frequency
-q_term_freq <- sort(rowSums(answer_m), decreasing = T)
-# Show top 100
-q_term_freq[1:100]
-
-# Key Words: Genocide, rwanda/n
+# # Create term-doc matrix
+# answer_tdm <- TermDocumentMatrix(clean_answers)
+# answer_m <- as.matrix(answer_tdm)
+# 
+# # Term frequency
+# q_term_freq <- sort(rowSums(answer_m), decreasing = T)
+# # Show top 100
+# q_term_freq[1:100]
 
 # Sentiment Analysis ----
-# Create dataframe
-answers_df <- data.frame(text=unlist(sapply(clean_answers, `[`, "content")), 
-                         stringsAsFactors=F)
-raw_answers_df <- data.frame(text=unlist(sapply(answers_corpus, `[`, "content")), 
-                         stringsAsFactors=F)
-# Get lists of questions
-answers_ls <- answers_df %>%
-  select(text) %>%
-  pull()
-
-# Sentiment for each question
-answer_sentiment <- get_nrc_sentiment(answers_ls)
-
-# Add answer back into sentiment
-answer_sentiment$answer = answers_ls
-
-# Overall Sentiment Bar Chart 
+# FUNCTION Sentiment Bar Chart 
 sentimentBar <- function(df, title){
   df %>%
     e_chart(chart) %>%
@@ -95,7 +65,37 @@ sentimentBar <- function(df, title){
     e_tooltip()
 }
 
-# Data
+# Create dataframe
+clean_answers_df <- data.frame(text=unlist(sapply(clean_answers, `[`, "content")), 
+                         stringsAsFactors=F)
+
+raw_answers_df <- data.frame(text=unlist(sapply(answers_corpus, `[`, "content")), 
+                         stringsAsFactors=F)
+
+# Get lists of answers
+cleaned_answers_ls <- clean_answers_df %>%
+  select(text) %>%
+  pull()
+
+raw_answers_ls <- raw_answers_df %>%
+  select(text) %>%
+  pull()
+
+# Sentiment for cleaned questions
+answer_sentiment <- get_nrc_sentiment(cleaned_answers_ls)
+
+# Add raw answers back into sentiment
+
+answer_sentiment$answer = raw_answers_ls
+
+# Find answers with keywords
+key_words_df <- answer_sentiment %>%
+  mutate(rwanda = ifelse(str_detect(answer, "rwanda"), 1, 0)) %>%
+  mutate(genocide = ifelse(str_detect(answer, "genocide"), 1, 0)) %>%
+  mutate(rwandan = ifelse(str_detect(answer, "rwandan"), 1, 0)) %>%
+  filter(rwanda > 0 | genocide > 0 | rwandan > 0) 
+
+# Overal Sentiment Bar Chart Data
 overall_sentiment <- answer_sentiment %>%
   summarise(anger = sum(anger)
             , disgust = sum(disgust)
@@ -111,13 +111,6 @@ overall_sentiment <- answer_sentiment %>%
 
 
 # Key Word Sentiment
-# Find answers with keywords
-key_words_df <-answer_sentiment %>%
-  mutate(rwanda = ifelse(str_detect(answer, "rwanda"), 1, 0)) %>%
-  mutate(genocide = ifelse(str_detect(answer, "genocide"), 1, 0)) %>%
-  mutate(rwandan = ifelse(str_detect(answer, "rwandan"), 1, 0)) %>%
-  filter(rwanda > 0 | genocide >0 | rwandan >0) 
-
 key_words_chart_df <- key_words_df %>%
   summarise(anger = sum(anger)
             , disgust = sum(disgust)
@@ -135,12 +128,9 @@ key_words_chart_df <- key_words_df %>%
 answer_sentiment <- answer_sentiment %>%
   mutate(overall_sentiment = anger + anticipation + disgust + fear + joy + sadness + surprise + trust + negative + positive)
 
-key_words_df <- key_words_df %>%
-  mutate(overall_sentiment = anger + anticipation + disgust + fear + joy + sadness + surprise + trust + negative + positive)
-
 all_answers_sorted <- answer_sentiment[order(answer_sentiment$overall_sentiment, decreasing = T),] %>% head(10)
 
-stripped_answer <- answer_sentiment %>%
-  select(answer)
+key_words_df <- key_words_df %>%
+  mutate(overall_sentiment = anger + anticipation + disgust + fear + joy + sadness + surprise + trust + negative + positive)
 
 key_words_sorted <- key_words_df[order(key_words_df$overall_sentiment, decreasing = T),] %>% head(10)

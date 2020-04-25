@@ -4,14 +4,10 @@
 # Author: Owen Bezick
 #
 
-#libraries
-library(shinydashboard)
-library(shiny)
-library(echarts4r)
-library(DT)
+
 # Source Libraries
 source("dataIntake.R", local = TRUE)
-
+source("libraries.R", local = TRUE)
 
 ui <- dashboardPage(
   dashboardHeader(title = "Leader Interview" 
