@@ -22,6 +22,16 @@ ui <- dashboardPage(
     tabItems(
       tabItem(
         tabName = "welcome"
+        , fluidRow(
+          box(width = 12, status = "primary", title = "Info"
+              , textOutput("info")
+          )
+        )
+        , fluidRow(
+          box(width = 12, status = "primary", title = "Full Interview PDF"
+              , tags$iframe(style="height:500px; width = 100%; scrolling = yes"
+                            , src="leader_interview.pdf"))
+        )
       )
       , tabItem(
         tabName = "sentimentAnalysis"
@@ -49,6 +59,7 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output) {
+  output$info <- renderText("Some information text")
   output$overallSentiment <- renderEcharts4r({
     sentimentBar(overall_sentiment, "Entire Interview Sentiment")
   })
