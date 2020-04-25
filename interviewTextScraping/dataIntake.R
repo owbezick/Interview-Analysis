@@ -62,7 +62,8 @@ q_term_freq[1:100]
 # Create dataframe
 answers_df <- data.frame(text=unlist(sapply(clean_answers, `[`, "content")), 
                          stringsAsFactors=F)
-
+raw_answers_df <- data.frame(text=unlist(sapply(answers_corpus, `[`, "content")), 
+                         stringsAsFactors=F)
 # Get lists of questions
 answers_ls <- answers_df %>%
   select(text) %>%
@@ -108,7 +109,6 @@ overall_sentiment <- answer_sentiment %>%
             , positive = sum(positive)) %>%
   mutate(chart = "")
 
-overall_sentiment_bar <- sentimentBar(overall_sentiment, "Overall Interview Sentiment")
 
 # Key Word Sentiment
 # Find answers with keywords
@@ -131,8 +131,6 @@ key_words_chart_df <- key_words_df %>%
             , positive = sum(positive)) %>%
   mutate(chart = "")
 
-key_word_sentiment_bar <- sentimentBar(key_words_chart_df, "Answers Mentioning Rwanda & Genocide")
-
 # Find answers with highest scores
 answer_sentiment <- answer_sentiment %>%
   mutate(overall_sentiment = anger + anticipation + disgust + fear + joy + sadness + surprise + trust + negative + positive)
@@ -142,5 +140,7 @@ key_words_df <- key_words_df %>%
 
 all_answers_sorted <- answer_sentiment[order(answer_sentiment$overall_sentiment, decreasing = T),] %>% head(10)
 
-key_words_sorted <- key_words_df[order(key_words_df$overall_sentiment, decreasing = T),] %>% head(10)
+stripped_answer <- answer_sentiment %>%
+  select(answer)
 
+key_words_sorted <- key_words_df[order(key_words_df$overall_sentiment, decreasing = T),] %>% head(10)
