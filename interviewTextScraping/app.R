@@ -29,8 +29,9 @@ ui <- dashboardPage(
         )
         , fluidRow(
           box(width = 12, status = "primary", title = "Full Interview PDF"
-              , tags$iframe(style="height:500px; width = 100%; scrolling = yes"
-                            , src="leader_interview.pdf"))
+              # , tags$iframe(style="height:500px; width = 100%; scrolling = yes"
+              #               , src="")
+              )
         )
       )
       , tabItem(

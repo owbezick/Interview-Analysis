@@ -1,5 +1,5 @@
 # Import Leader pdf file ----
-raw_lines <- pdf_text("leader_interview.pdf") %>%
+raw_lines <- pdf_text("www/leader_interview.pdf") %>%
   read_lines()
 
 # Text Preprocessing ----
