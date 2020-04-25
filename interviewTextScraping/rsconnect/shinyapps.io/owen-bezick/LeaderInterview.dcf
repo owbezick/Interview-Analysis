@@ -5,8 +5,9 @@ account: owen-bezick
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2184869
-bundleId: 3064055
+bundleId: 3064627
 url: https://owen-bezick.shinyapps.io/LeaderInterview/
-when: 1587834416.27765
+when: 1587848412.93383
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: che.R

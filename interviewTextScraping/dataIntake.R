@@ -1,22 +1,6 @@
-#libraries
-library(shinydashboard)
-library(echarts4r)
-library(DT)
-library(tidyverse)
-library(dplyr)
-library(pdftools)
-library(tidytext)
-library(tm)
-library(qdap)
-library(qdapRegex)
-library(rlist)
-library(tokenizers)
-library(stopwords)
-library(syuzhet)
-library(echarts4r)
-library(dplyr)
+
 # Import Leader pdf file ----
-raw_lines <- pdf_text("www/leader_interview.pdf") %>%
+raw_lines <- pdf_text("leader_interview.pdf") %>%
   read_lines()
 
 # Text Preprocessing ----
@@ -145,9 +129,9 @@ key_words_chart_df <- key_words_df %>%
 answer_sentiment <- answer_sentiment %>%
   mutate(overall_sentiment = anger + anticipation + disgust + fear + joy + sadness + surprise + trust + negative + positive)
 
-all_answers_sorted <- answer_sentiment[order(answer_sentiment$overall_sentiment, decreasing = T),] %>% head(10)
+all_answers_sorted <- answer_sentiment[order(answer_sentiment$overall_sentiment, decreasing = T),] %>% head(5)
 
 key_words_df <- key_words_df %>%
   mutate(overall_sentiment = anger + anticipation + disgust + fear + joy + sadness + surprise + trust + negative + positive)
 
-key_words_sorted <- key_words_df[order(key_words_df$overall_sentiment, decreasing = T),] %>% head(10)
+key_words_sorted <- key_words_df[order(key_words_df$overall_sentiment, decreasing = T),] %>% head(5)

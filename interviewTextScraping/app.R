@@ -9,22 +9,7 @@
 source("dataIntake.R", local = TRUE)
 
 #libraries
-library(shinydashboard)
-library(echarts4r)
-library(DT)
-library(tidyverse)
-library(dplyr)
-library(pdftools)
-library(tidytext)
-library(tm)
-library(qdap)
-library(qdapRegex)
-library(rlist)
-library(tokenizers)
-library(stopwords)
-library(syuzhet)
-library(echarts4r)
-library(dplyr)
+source("libraries.R", local = TRUE)
 
 ui <- dashboardPage(
   dashboardHeader(title = "Leader Interview" 
@@ -32,7 +17,8 @@ ui <- dashboardPage(
   , dashboardSidebar(
     sidebarMenu(
       menuItem(tabName = "welcome", text = "Welcome", icon = icon("info")) 
-      , menuItem(tabName = "sentimentAnalysis", text = "Sentiment Analysis", icon = icon("search"))
+      , menuItem(tabName = "leader", text = "Leader Interview", icon = icon("search"))
+      , menuItem(tabName = "bushnell", text = "Bushnell Interview", icon = icon("search"))
     )
   )
   , dashboardBody( 
@@ -40,35 +26,60 @@ ui <- dashboardPage(
       tabItem(
         tabName = "welcome"
         , fluidRow(
-          box(width = 12, status = "primary", title = "Info"
+          box(width = 12, status = "primary", title = "Welcome"
               , textOutput("info")
           )
         )
         , fluidRow(
-          box(width = 12, status = "primary", title = "Full Interview PDF"
-              # , tags$iframe(style="height:500px; width = 100%; scrolling = yes"
-              #               , src="")
+          box(width = 12, status = "primary", title = "Interview PDF"
+              , column(width = 6
+                    , uiOutput("leaderPDF")
               )
+              , column(width = 6
+                    , uiOutput("bushnellPDF")
+              )
+          )
         )
       )
       , tabItem(
-        tabName = "sentimentAnalysis"
+        tabName = "leader"
         , fluidRow(
           tabBox(width = 12, title = "Overall", side = c("right")
                  , tabPanel("Entire Interview"
-                            , echarts4rOutput("overallSentiment")
+                            , echarts4rOutput("overallSentimentLeader")
                  )
                  , tabPanel("Key Words"
-                            , echarts4rOutput("keyTermsSentiment")
+                            , echarts4rOutput("keyTermsSentimentLeader")
                  )
           )
         )
         , fluidRow(
           tabBox(width = 12, title = "High Sentiment Answers", side = c("right")
                  , tabPanel("Entire Interview"
-                            , DTOutput("entireInterviewAnswers"))
+                            , DTOutput("entireInterviewAnswersLeader"))
                  , tabPanel("Key Words"
-                            , DTOutput("keyWordAnswers"))
+                            , DTOutput("keyWordAnswersLeader"))
+          )
+        )
+      )
+      , tabItem(
+        tabName = "bushnell"
+        , fluidRow(
+          tabBox(width = 12, title = "Overall", side = c("right")
+                 , tabPanel("Entire Interview"
+                            , echarts4rOutput("overallSentimentBushnell")
+                 )
+                 , tabPanel("Key Words"
+                            , echarts4rOutput("keyTermsSentimentBushnell")
+                 )
+          )
+        )
+        , fluidRow(
+          tabBox(width = 12, title = "High Sentiment Answers", side = c("right")
+                 , tabPanel("Entire Interview"
+                            , DTOutput("entireInterviewAnswersBushnell"))
+                 , tabPanel("Key Words"
+                            , DTOutput("keyWordAnswersBushnell"))
           )
         )
       )
@@ -77,22 +88,37 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output) {
-  output$info <- renderText("Some information text")
-  output$overallSentiment <- renderEcharts4r({
+  output$info <- renderText("This sentiment (thematic) analysis focuses on oral histories 
+                            (interviews done by the Association for Diplomatic Studies & Training) 
+                            about Ambassador Joyce Leader, a prominent American diplomat who served 
+                            in Rwanda as Deputy Chief of Mission. She served from 1991-1994, working 
+                            on the attempts at peace via the Arusha Accords, and was in Rwanda leading 
+                            up to the genocide. This analysis is part of a longer project exploring the 
+                            American presence relating to the Rwandan Genocide. ")
+  
+  output$leaderPDF <- renderUI({
+    tags$iframe(style="height:600px; width:100%", src = "https://www.adst.org/OH%20TOCs/Leader,%20Joyce%20E.toc.pdf")
+  })
+  
+  output$bushnellPDF <- renderUI({
+    tags$iframe(style="height:600px; width:100%", src = "https://www.adst.org/OH%20TOCs/Bushnell,%20Prudence.toc.pdf")
+  })
+  
+  output$overallSentimentLeader <- renderEcharts4r({
     sentimentBar(overall_sentiment, "Entire Interview Sentiment")
   })
   
-  output$keyTermsSentiment <- renderEcharts4r({
+  output$keyTermsSentimentLeader <- renderEcharts4r({
     sentimentBar(key_words_chart_df, "Answers Mentioning Rwanda & Genocide")
   })
   
-  output$entireInterviewAnswers <- renderDT({
+  output$entireInterviewAnswersLeader <- renderDT({
     all_answers_sorted %>%
       select(`Summed Sentiment` = overall_sentiment, Answer = answer) %>%
       datatable(rownames = F)
   })
   
-  output$keyWordAnswers <- renderDT({
+  output$keyWordAnswersLeader <- renderDT({
     key_words_sorted %>%
       select(`Summed Sentiment` = overall_sentiment, Answer = answer) %>%
       datatable(rownames = F)
