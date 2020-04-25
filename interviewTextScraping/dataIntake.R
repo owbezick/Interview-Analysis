@@ -1,3 +1,4 @@
+source("libraries.R", local = TRUE)
 
 # Import Leader pdf file ----
 raw_lines <- pdf_text("leader_interview.pdf") %>%
