@@ -7,7 +7,24 @@
 
 # Source Libraries
 source("dataIntake.R", local = TRUE)
-source("libraries.R", local = TRUE)
+
+#libraries
+library(shinydashboard)
+library(echarts4r)
+library(DT)
+library(tidyverse)
+library(dplyr)
+library(pdftools)
+library(tidytext)
+library(tm)
+library(qdap)
+library(qdapRegex)
+library(rlist)
+library(tokenizers)
+library(stopwords)
+library(syuzhet)
+library(echarts4r)
+library(dplyr)
 
 ui <- dashboardPage(
   dashboardHeader(title = "Leader Interview" 

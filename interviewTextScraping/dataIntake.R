@@ -1,3 +1,20 @@
+#libraries
+library(shinydashboard)
+library(echarts4r)
+library(DT)
+library(tidyverse)
+library(dplyr)
+library(pdftools)
+library(tidytext)
+library(tm)
+library(qdap)
+library(qdapRegex)
+library(rlist)
+library(tokenizers)
+library(stopwords)
+library(syuzhet)
+library(echarts4r)
+library(dplyr)
 # Import Leader pdf file ----
 raw_lines <- pdf_text("www/leader_interview.pdf") %>%
   read_lines()
