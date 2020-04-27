@@ -7,12 +7,12 @@
 
 # Source Libraries
 source("dataIntake.R", local = TRUE)
-
+source("bushnellData.R", local = TRUE)
 #libraries
 source("libraries.R", local = TRUE)
 
 ui <- dashboardPage(
-  dashboardHeader(title = "Leader Interview" 
+  dashboardHeader(title = "Politcal Interviews" 
   )
   , dashboardSidebar(
     sidebarMenu(
@@ -103,7 +103,7 @@ server <- function(input, output) {
   output$bushnellPDF <- renderUI({
     tags$iframe(style="height:600px; width:100%", src = "https://www.adst.org/OH%20TOCs/Bushnell,%20Prudence.toc.pdf")
   })
-  
+  #LEADER
   output$overallSentimentLeader <- renderEcharts4r({
     sentimentBar(overall_sentiment, "Entire Interview Sentiment")
   })
@@ -123,7 +123,26 @@ server <- function(input, output) {
       select(`Summed Sentiment` = overall_sentiment, Answer = answer) %>%
       datatable(rownames = F)
   })
+  #BUSHNELL
+  output$overallSentimentBushnell <- renderEcharts4r({
+    sentimentBar(overall_sentiment_b, "Entire Interview Sentiment")
+  })
   
+  output$keyTermsSentimentBushnell <- renderEcharts4r({
+    sentimentBar(key_words_chart_df_b, "Answers Mentioning Rwanda & Genocide")
+  })
+  
+  output$entireInterviewAnswersBushnell <- renderDT({
+    all_answers_sorted_b %>%
+      select(`Summed Sentiment` = overall_sentiment, Answer = answer) %>%
+      datatable(rownames = F)
+  })
+  
+  output$keyWordAnswersBushnell <- renderDT({
+    key_words_sorted_b %>%
+      select(`Summed Sentiment` = overall_sentiment, Answer = answer) %>%
+      datatable(rownames = F)
+  })
 }
 
 # Run the application 
